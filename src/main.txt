@@ -1,0 +1,189 @@
+/**
+ * Include the Geode headers.
+ */
+#include <Geode/Geode.hpp>
+#include <Geode/modify/CharacterColorPage.hpp>
+#include <Geode/ui/TextInput.hpp>
+
+/**
+ * Brings cocos2d and all Geode namespaces to the current scope.
+ */
+using namespace geode::prelude;
+
+/**
+ * `$modify` lets you extend and modify GD's classes.
+ * To hook a function in Geode, simply $modify the class
+ * and write a new function definition with the signature of
+ * the function you want to hook.
+ *
+ * Here we use the overloaded `$modify` macro to set our own class name,
+ * so that we can use it for button callbacks.
+ *
+ * Notice the header being included, you *must* include the header for
+ * the class you are modifying, or you will get a compile error.
+ *
+ * Another way you could do this is like this:
+ *
+ * struct MyMenuLayer : Modify<MyMenuLayer, MenuLayer> {};
+ */
+class $modify(MyCharacterColorPage, CharacterColorPage), public FLAlertLayerProtocol{
+    TextInput* m_input = nullptr;
+
+
+    bool init() {
+        if (!CharacterColorPage::init()) return false;
+
+        auto menu = CCMenu::create();
+        menu->setPosition({ 0, 0 });
+        this->addChild(menu);
+
+        auto saveSpr = CCSprite::createWithSpriteFrameName("GJ_downloadsIcon_001.png");
+        auto saveBtn = CCMenuItemSpriteExtra::create(saveSpr, this, menu_selector(MyCharacterColorPage::onSave));
+        saveBtn->setPosition({ 300.f, 30.f });
+        menu->addChild(saveBtn);
+
+        /*auto loadSpr = CCSprite::createWithSpriteFrameName("GJ_uploadIcon_001.png");
+        auto loadBtn = CCMenuItemSpriteExtra::create(loadSpr, this, menu_selector(MyCharacterColorPage::onLoad));
+        loadBtn->setPosition({ 340.f, 30.f });
+        menu->addChild(loadBtn);*/
+
+        // this will be the initial size of the node (and the loading circle)
+        CCSize nodeSize{ 64.f, 64.f };
+
+        auto spr1 = LazySprite::create(nodeSize);
+        auto spr2 = LazySprite::create(nodeSize);
+
+        
+
+
+
+        auto prevSpr = CCSprite::createWithSpriteFrameName("GJ_optionsBtn_001.png");
+        auto prevBtn = CCMenuItemSpriteExtra::create(prevSpr, this, menu_selector(MyCharacterColorPage::onPrevProfile));
+        prevBtn->setPosition({ 260.f, 30.f });
+        prevBtn->setRotation(180);
+        menu->addChild(prevBtn);
+       
+
+        auto nextSpr = CCSprite::createWithSpriteFrameName("GJ_infoIcon_001.png");
+        auto nextBtn = CCMenuItemSpriteExtra::create(nextSpr, this, menu_selector(MyCharacterColorPage::onNextProfile));
+        nextBtn->setPosition({ 380.f, 30.f });
+        menu->addChild(nextBtn);
+
+        return true;
+    }
+    
+
+    void onSave(CCObject*) {
+        auto gm = GameManager::sharedState();
+
+        std::map<std::string, int> profile = {
+            {"cube", gm->getPlayerFrame()},
+            {"ship", gm->getPlayerShip()},
+            {"ufo", gm->getPlayerBird()},
+            {"ball", gm->getPlayerBall()},
+            {"wave", gm->getPlayerDart()},
+            {"robot", gm->getPlayerRobot()},
+            {"spider", gm->getPlayerSpider()},
+            {"swing", gm->getPlayerSwing()},
+            {"color1", gm->getPlayerColor()},
+            {"color2", gm->getPlayerColor2()},
+            {"glow", gm->getPlayerGlowColor()}
+        };
+
+        std::vector<std::map<std::string, int>> list;
+        if (Mod::get()->hasSavedValue("icon_profiles")) {
+            list = Mod::get()->getSavedValue<std::vector<std::map<std::string, int>>>("icon_profiles");
+        }
+
+        list.push_back(profile);
+        Mod::get()->setSavedValue("icon_profiles", list);
+        Mod::get()->setSavedValue("current_profile_index", static_cast<int>(list.size()) - 1);
+
+        auto alert = FLAlertLayer::create(
+            this,                                // delegate
+            "Tu nombre",                         // título
+            "Ingresa tu nombre para continuar.", // descripción
+            "Cancelar",                          // botón izquierdo
+            "Guardar"                            // botón derecho
+        );
+
+        // Creamos el campo de texto
+        m_input = TextInput::create(240.f, "Nombre...");
+        m_input->setAnchorPoint({ 0.5f, 0.5f });
+
+        auto winSize = CCDirector::get()->getWinSize();
+        m_input->setPosition({ winSize.width / 2, winSize.height / 2 - 40 });
+
+        // Añadirlo a la alerta y mostrar
+        alert->addChild(m_input);
+        alert->show();
+    }
+
+    // Se llama cuando se cierra la alerta
+    void FLAlert_Clicked(FLAlertLayer*, bool btn2) override {
+        if (btn2 && m_input) {
+            auto name = m_input->getInputNode()->getString();
+            log::info("name: ", name);
+            //Mod::get()->setSettingValue<std::string>("profile", name);
+
+            // Confirmación
+            FLAlertLayer::create("¡Guardado!", fmt::format("Hola, {}!", name), "OK")->show();
+        }
+    }
+
+    void loadProfileByIndex(int index) {
+        std::vector<std::map<std::string, int>> perfiles;
+        if (Mod::get()->hasSavedValue("icon_profiles")) {
+            perfiles = Mod::get()->getSavedValue<std::vector<std::map<std::string, int>>>("icon_profiles");
+        }
+
+        if (perfiles.empty()) {
+            FLAlertLayer::create("Perfiles", "No hay perfiles guardados.", "OK")->show();
+            return;
+        }
+
+        index = std::clamp(index, 0, static_cast<int>(perfiles.size()) - 1);
+        Mod::get()->setSavedValue("current_profile_index", index);
+        auto& profile = perfiles[index];
+
+        auto gm = GameManager::sharedState();
+        gm->setPlayerFrame(profile.at("cube"));
+        gm->setPlayerShip(profile.at("ship"));
+        gm->setPlayerBird(profile.at("ufo"));
+        gm->setPlayerBall(profile.at("ball"));
+        gm->setPlayerDart(profile.at("wave"));
+        gm->setPlayerRobot(profile.at("robot"));
+        gm->setPlayerSpider(profile.at("spider"));
+        gm->setPlayerSwing(profile.at("swing"));
+        gm->setPlayerColor(profile.at("color1"));
+        gm->setPlayerColor2(profile.at("color2"));
+        gm->setPlayerGlow(profile.at("glow"));
+
+        log::info("Data: ", profile);
+        FLAlertLayer::create("✅ Cargado", "Perfil cargado exitosamente.", "OK")->show();
+    }
+
+    void onLoad(CCObject*) {
+        int index = 0;
+        if (Mod::get()->hasSavedValue("current_profile_index")) {
+            index = Mod::get()->getSavedValue<int>("current_profile_index");
+        }
+        loadProfileByIndex(index);
+    }
+
+    void onPrevProfile(CCObject*) {
+        int index = 0;
+        if (Mod::get()->hasSavedValue("current_profile_index")) {
+            index = Mod::get()->getSavedValue<int>("current_profile_index");
+        }
+        loadProfileByIndex(index - 1);
+    }
+
+    void onNextProfile(CCObject*) {
+        int index = 0;
+        if (Mod::get()->hasSavedValue("current_profile_index")) {
+            index = Mod::get()->getSavedValue<int>("current_profile_index");
+        }
+        loadProfileByIndex(index + 1);
+    }
+};

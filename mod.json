@@ -1,0 +1,28 @@
+{
+	"geode": "4.5.0",
+	"gd": {
+		"win": "2.2074",
+		"android": "2.2074",
+		"mac": "2.2074",
+		"ios": "2.2074"
+	},
+	"id": "rompni.many-build-icons",
+	"name": "many Build Icons",
+	"version": "v1.0.0",
+	"developer": "rompni",
+	"description": "Save your current build of icons",
+	"resources": {
+		"spritesheets": {
+			"ManyBuildIconsSheet": [
+				"resources/*.png"
+			]
+		}
+	},
+	"dependencies": [
+		{
+			"id": "geode.node-ids",
+			"version": ">=1.17.0",
+			"importance": "required"
+		}
+	]
+}
