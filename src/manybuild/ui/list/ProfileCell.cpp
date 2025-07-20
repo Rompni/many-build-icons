@@ -83,7 +83,7 @@ namespace manybuild {
     void ProfileCell::onUseButton(CCObject*) {
         if (m_onUse) {
             log::info("Clicked!");
-            Mod::get()->setSavedValue<boolean>("need_icon_profile", true);
+            Mod::get()->setSavedValue<bool>("need_icon_profile", true);
             m_onUse();
         }
     }
