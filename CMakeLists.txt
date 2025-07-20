@@ -8,6 +8,8 @@ else()
 endif()
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
+
 project(many-build-icons VERSION 1.0.0)
 
 file(GLOB SOURCES
