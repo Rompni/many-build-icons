@@ -18,6 +18,13 @@
 			]
 		}
 	},
+	"tags": [
+		"utility",
+		"interface",
+		"customization",
+		"enhancement",
+		"gameplay"
+	],
 	"dependencies": [
 		{
 			"id": "geode.node-ids",
