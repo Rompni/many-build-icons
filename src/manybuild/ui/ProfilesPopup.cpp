@@ -1,5 +1,4 @@
 // ProfilesPopup.cpp
-#pragma once
 
 #include "ProfilesPopup.hpp"
 #include "manybuild/ui/list/ProfileCell.hpp"
@@ -20,7 +19,7 @@ bool ProfilesPopup::setup() {
     auto spr = CCSprite::createWithSpriteFrameName("GJ_plusBtn_001.png");
     spr->setScale(0.7f);
 
-    auto addBtn = CCMenuItemSpriteExtra::create(spr, this, menu_selector(ProfilesPopup::onAdd));
+    auto addBtn = CCMenuItemSpriteExtra::create(spr, static_cast<cocos2d::CCObject*>(this), menu_selector(ProfilesPopup::onAdd));
     addBtn->setAnchorPoint({ 0.5f, 0.1f });
 
     auto title = CCLabelBMFont::create("Profiles", "goldFont.fnt");
@@ -118,7 +117,7 @@ void ProfilesPopup::onDeleteProfile(CCObject* sender) {
 
 void ProfilesPopup::onUse(const std::string& id) {
     log::info("Usar perfil: {}", id);
-    this->onClose(nullptr);
+    this->onClose(static_cast<geode::Popup<>*>(this));
 }
 
 void ProfilesPopup::createList() {
@@ -220,7 +219,7 @@ void ProfilesPopup::createList() {
     m_list->scrollToTop();
 
     this->m_mainLayer->addChild(m_list);
-    handleTouchPriority(this);
+    handleTouchPriority(static_cast<cocos2d::CCNode*>(this));
 }
 
 void ProfilesPopup::reloadList() {
@@ -234,7 +233,7 @@ CCSize ProfilesPopup::getPopupSize() {
 ProfilesPopup* ProfilesPopup::create() {
     auto ret = new ProfilesPopup();
     if (ret && ret->initAnchored(ret->getPopupSize().width, ret->getPopupSize().height)) {
-        ret->autorelease();
+        ret->autorelease(); // If ret is a CCObject*
         return ret;
     }
     CC_SAFE_DELETE(ret);

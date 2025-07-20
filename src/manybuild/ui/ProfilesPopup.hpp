@@ -4,6 +4,7 @@
 #include <Geode/ui/Popup.hpp>
 #include <Geode/ui/ScrollLayer.hpp>
 #include <Geode/binding/CCMenuItemSpriteExtra.hpp>
+#include <Geode/binding/FLAlertLayerProtocol.hpp>
 //#include "../managers/ProfileManager.hpp"
 
 namespace manybuild {

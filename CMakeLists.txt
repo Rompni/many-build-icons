@@ -8,8 +8,6 @@ else()
 endif()
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
-
 project(many-build-icons VERSION 1.0.0)
 
 file(GLOB SOURCES
@@ -24,7 +22,7 @@ file(GLOB SOURCES
 #file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
 
 # Set up the mod binary
-add_library(${PROJECT_NAME} SHARED ${SOURCES} "src/manybuild/hooks/GameManagerExt.cpp")
+add_library(${PROJECT_NAME} SHARED ${SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC src)
 
 
@@ -34,7 +32,7 @@ else()
     message(STATUS "Found Geode: $ENV{GEODE_SDK}")
 endif()
 
-add_subdirectory($ENV{GEODE_SDK} ${CMAKE_CURRENT_BINARY_DIR}/geode)
+add_subdirectory($ENV{GEODE_SDK} $ENV{GEODE_SDK}/geode)
 
 # Set up dependencies, resources, and link Geode.
 target_link_libraries(${PROJECT_NAME} geode-sdk)
